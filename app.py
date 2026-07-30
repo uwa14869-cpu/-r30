@@ -10,6 +10,18 @@ import pandas as pd
 import joblib
 import plotly.express as px
 import plotly.graph_objects as go
+import base64
+import os
+
+# ============================================================
+# ⭐ ข้อมูลผู้พัฒนา (แก้ไขข้อมูลตรงนี้ได้ตามต้องการ)
+# ============================================================
+DEVELOPER_NAME = "นายภาณุพงศ์ ภุ่มพันธ์วงค์"
+DEVELOPER_ID   = "664245030"
+DEVELOPER_CLASS = "หมู่เรียน 66/43"
+DEVELOPER_FACULTY = "คณะวิทยาศาสตร์และเทคโนโลยี"
+DEVELOPER_UNIVERSITY = "มหาวิทยาลัยราชภัฏนครปฐม"
+DEVELOPER_IMAGE = "img/030.jpg.jpg"  # วางไฟล์รูปในโฟลเดอร์ img/ ชื่อไฟล์ 030.jpg.jpg
 
 # ==================== Page Configuration ====================
 st.set_page_config(
@@ -140,8 +152,154 @@ st.markdown("""
     .dataframe {
         color: #2c3e50 !important;
     }
+
+    /* ⭐ Developer Section CSS */
+    .dev-section-title {
+        text-align: center;
+        color: #2c3e50 !important;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 3rem 0 1.5rem 0;
+    }
+    
+    .dev-card-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 25px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+        margin: 1rem auto;
+        max-width: 900px;
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .dev-card-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+    }
+    
+    .dev-image-wrapper {
+        flex-shrink: 0;
+        position: relative;
+    }
+    
+    .dev-image-wrapper img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #667eea;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .dev-image-wrapper::after {
+        content: "🏠";
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        font-size: 2.5rem;
+        background: white;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .dev-info {
+        flex: 1;
+    }
+    
+    .dev-name {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2c3e50 !important;
+        margin: 0 0 0.8rem 0;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .dev-detail {
+        font-size: 1.05rem;
+        color: #4a5568 !important;
+        margin: 0.6rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .dev-detail-icon {
+        font-size: 1.3rem;
+        min-width: 30px;
+        text-align: center;
+    }
+    
+    .dev-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-weight: bold;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .dev-card-container {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        .dev-image-wrapper img {
+            width: 150px;
+            height: 150px;
+        }
+        .dev-name {
+            font-size: 1.5rem;
+            text-align: center;
+            display: block;
+        }
+        .dev-detail {
+            justify-content: center;
+        }
+    }
+    
+    .dev-emoji-fallback {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        border: 5px solid white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# ============================================================
+# ฟังก์ชันโหลดรูป
+# ============================================================
+def get_developer_image_base64():
+    """โหลดรูปผู้พัฒนา แปลงเป็น base64"""
+    try:
+        if os.path.exists(DEVELOPER_IMAGE):
+            with open(DEVELOPER_IMAGE, "rb") as f:
+                image_bytes = f.read()
+            return base64.b64encode(image_bytes).decode()
+    except Exception:
+        pass
+    return None
 
 # ==================== Load Model ====================
 @st.cache_resource
@@ -173,7 +331,7 @@ with st.sidebar:
     """)
     
     # Feature descriptions
-    with st.expander(" คำอธิบาย Features"):
+    with st.expander("📖 คำอธิบาย Features"):
         st.markdown("""
         - **MedInc**: รายได้เฉลี่ย (×$10,000)
         - **HouseAge**: อายุบ้านเฉลี่ย
@@ -207,13 +365,13 @@ with col1:
     latitude = st.slider("🌐 Latitude", 32.0, 42.0, 35.0, 0.01)
     longitude = st.slider("🌐 Longitude", -124.0, -114.0, -119.0, 0.01)
     population = st.slider("👥 Population", 1.0, 30000.0, 1500.0, 10.0)
-    ave_occup = st.slider("👨‍👩👧‍👦 Avg. Occupancy", 1.0, 10.0, 3.0, 0.1)
+    ave_occup = st.slider("👨‍👩‍👧‍👦 Avg. Occupancy", 1.0, 10.0, 3.0, 0.1)
 
 with col2:
     st.markdown("### 🏡 House Characteristics")
     med_inc = st.slider("💰 Median Income (×$10k)", 0.5, 15.0, 5.0, 0.1)
     house_age = st.slider("🏚️ House Age (years)", 1.0, 52.0, 20.0, 1.0)
-    ave_rooms = st.slider(" Avg. Rooms", 1.0, 15.0, 5.0, 0.1)
+    ave_rooms = st.slider("🚪 Avg. Rooms", 1.0, 15.0, 5.0, 0.1)
     ave_bedrms = st.slider("🛏️ Avg. Bedrooms", 0.5, 5.0, 1.1, 0.1)
 
 # ==================== Prediction Button ====================
@@ -258,7 +416,7 @@ if predict_button:
     with col_m1:
         st.markdown(f"""
         <div class='metric-card'>
-            <h3 style='color: #667eea; margin: 0;'> Predicted Price</h3>
+            <h3 style='color: #667eea; margin: 0;'>💵 Predicted Price</h3>
             <p style='font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;'>
                 ${prediction_usd:,.0f}
             </p>
@@ -280,7 +438,7 @@ if predict_button:
         price_per_person = prediction_usd / population if population > 0 else 0
         st.markdown(f"""
         <div class='metric-card'>
-            <h3 style='color: #f093fb; margin: 0;'> Price/Person</h3>
+            <h3 style='color: #f093fb; margin: 0;'>👤 Price/Person</h3>
             <p style='font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;'>
                 ${price_per_person:,.0f}
             </p>
@@ -331,6 +489,48 @@ if predict_button:
             'Value': input_data[0]
         })
         st.dataframe(input_df, use_container_width=True, hide_index=True)
+
+# ============================================================
+# ⭐ Developer Section - จัดวางรูป ชื่อ หมู่เรียน ใหม่
+# ============================================================
+st.markdown("---")
+st.markdown('<div class="dev-section-title">👨‍💻 ผู้พัฒนา / Developer</div>', unsafe_allow_html=True)
+
+img_base64 = get_developer_image_base64()
+if img_base64:
+    image_html = f'<img src="data:image/jpeg;base64,{img_base64}" alt="Developer Photo">'
+else:
+    image_html = '<div class="dev-emoji-fallback">👨‍💻</div>'
+
+st.markdown(f"""
+<div class="dev-card-container">
+    <div class="dev-image-wrapper">
+        {image_html}
+    </div>
+    <div class="dev-info">
+        <h2 class="dev-name">👨‍💻 {DEVELOPER_NAME}</h2>
+        <div class="dev-detail">
+            <span class="dev-detail-icon">🆔</span>
+            <span><b>รหัสนักศึกษา:</b> {DEVELOPER_ID}</span>
+        </div>
+        <div class="dev-detail">
+            <span class="dev-detail-icon">🎓</span>
+            <span><b>หมู่เรียน:</b> {DEVELOPER_CLASS}</span>
+        </div>
+        <div class="dev-detail">
+            <span class="dev-detail-icon">🏛️</span>
+            <span><b>คณะ:</b> {DEVELOPER_FACULTY}</span>
+        </div>
+        <div class="dev-detail">
+            <span class="dev-detail-icon">🏫</span>
+            <span><b>มหาวิทยาลัย:</b> {DEVELOPER_UNIVERSITY}</span>
+        </div>
+        <span class="dev-badge">✨ Data Science Developer</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # ==================== Footer ====================
 st.markdown("---")
